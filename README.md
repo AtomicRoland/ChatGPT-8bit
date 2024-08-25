@@ -1,7 +1,7 @@
 # ChatGPT client for 8bit Acorn computers
 
 This program will enable your 8bit Acorn computer to communicatie with the OpenAI API. You'll need an ESP8266-based WiFi board such as ElkWiFi (Electron)
-or BeebWiFi (BBC Micro, BBC Master or Acorn Atom with 1MHz bus adapter).
+or BeebWiFi (BBC Micro, BBC Master or Acorn Atom with 1MHz bus adapter). WiFi ROM Version 0.32 or higher is required. 
 
 You have to create a personal API key at the OpenAI website, see https://platform.openai.com/docs/api-reference/authentication for more information. 
 

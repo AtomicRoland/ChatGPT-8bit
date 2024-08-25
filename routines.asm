@@ -321,21 +321,6 @@
  plp
  rts
 
-\ Check if the escape key is pressed. On exit the carry shows the escape status:
-\ c = 0: no escape
-\ c = 1: escape pressed
-\ A, X and Y are preserved
-.check_esc
- bit &FF                \ load escape flag
- bmi esc_pressed        \ acknowledge if pressed
- clc                    \ clear carry for no escape pressed
- rts                    \ return from subroutine
-.esc_pressed
- lda #126               \ Acknowledge the escape
- jsr osbyte
- sec                    \ set carry for escape
- rts                    \ return from subroutine
-
 \ Wait for two vertical sync for a short delay
 .wait
  pha
@@ -362,9 +347,9 @@
  endif
 
 \ **********************************************************************
-\ *             Machine specific routines: Acorn Atom                  *
+\ *             Machine specific routines: Acorn Atom and System 5     *
 \ **********************************************************************
- if __ATOM__ = 1
+ if __ATOM__ = 1 or __SYSTEM5__ = 1
 .osasci
  jsr oswrch
  cmp #&0D
@@ -376,18 +361,6 @@
 .osend
  rts 
 
-\ Check if the escape key is pressed. On exit the carry shows the escape status:
-\ c = 0: no escape
-\ c = 1: escape pressed
-\ A, X and Y are preserved
-.check_esc
- rts    ; not implemented for the Atom, yet
-
-\ Wait for two vertical sync for a short delay
-.wait
- jsr oswait
- jmp oswait
-
 \ Test presense of paged ram
 \ This test is destructive for both the ram content and the A register.
 \ Returns with Z=0 for ram error.
@@ -397,6 +370,34 @@
   cmp pageram                \ compare memory with value
  .ram_error
   rts                        \ return from subroutine
+
+\ OSWAIT simulation, wait about 1/60 second
+.wait
+.oswait
+ pha
+ tya
+ pha
+ txa
+ pha
+ ldx #4
+.oswait_loop_x
+ ldy #0
+.oswait_loop_y
+ nop
+ nop
+ nop
+ nop
+ nop
+ dey
+ bne oswait_loop_y
+ dex
+ bne oswait_loop_x
+ pla
+ tax
+ pla
+ tay
+ pla
+ rts
 
  endif
 

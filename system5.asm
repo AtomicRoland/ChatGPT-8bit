@@ -1,25 +1,19 @@
 \ ChatGPT client for Acorn 8bit micros
-\ Settings, definitions and constants for the Acorn Atom
+\ Settings, definitions and constants for the Acorn System 5
 
-\ (C)Roland Leurs 2023
-\ Version 1.00 August 2023
+\ (C)Roland Leurs 2024
+\ Version 1.00 August 2024
 
-if __FPGATOM__=1
-uart    = &BFC0                 \ Base address for the 16C2552 UART B-port
-pagereg = &BFF8
-bankreg = &BFF9                 \ PAM bank select register in FPGAtom
-pageram = &B100
-else
-uart    = &BD30                 \ Base address for the 16C2552 UART B-port
-pagereg = &BDFF
-pageram = &BC00
-endif
+SCREENWIDTH = 39
+SCREENHEIGTH = 23
 
+uart    = &B30                 \ Base address for the 16C2552 UART B-port
+pagereg = &BFF
+pageram = &D00
 
-godil	= &BD00            
-chatbuf = &2D00			\ start address of 256 byte input buffer, must by page aligned!
-cmdbuf = &2E00			\ start address of 512 byte command and http request buffer, must by page aligned!
-heap = cmdbuf                   \ reuse of memory, cmdbuf is used before http request, heap is used after the request
+chatbuf = &3D00			\ start address of 256 byte input buffer, must by page aligned!
+cmdbuf = &3E00			\ start address of 512 byte command and http request buffer, must by page aligned!
+heap = cmdbuf           \ reuse of memory, cmdbuf is used before http request, heap is used after the request
 textbuf = &4000			\ start address of text buffer for ChatGPT response
 
 osrdch = &FFE3

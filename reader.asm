@@ -92,7 +92,7 @@
 .reader_l9	ldx save_x				\ restore x register
 		ldy save_y				    \ restore y register
 .reader_l10	jsr reader_incr			\ increment read pointer
-		cpx screenheight			\ test for end of screen
+		cpx screenheight-2  		\ test for end of screen
 		bne reader_l7				\ not end of screen, jump for next line
 		jsr reader_key				\ wait for a key press
 		jmp reader_l6				\ jump for the next screen

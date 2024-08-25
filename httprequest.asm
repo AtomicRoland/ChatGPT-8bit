@@ -47,7 +47,7 @@ else
         lda #&08                    \ load driver function number
 		ldx #((cmdbuf+3) mod 256)	\ load high byte parameter block
         ldy #((cmdbuf+3) div 256)	\ load low byte parameter block
-		jsr wifidriver              \ execute wifi function and return
+		jmp wifidriver              \ execute wifi function and return
 endif
 
 

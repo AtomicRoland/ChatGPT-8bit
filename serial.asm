@@ -32,7 +32,7 @@ bank_save = save_a
 \ Page RAM bank 0 is selected
 \ All registers are unchanged
 .init_uart
- php
+ pha
  lda uart_lcr   \ enable baudrate divisor
  ora #&80
  sta uart_lcr
@@ -43,14 +43,26 @@ bank_save = save_a
  sta uart_afr   \ set MFB to output
  lda #&03       \ 8 bit, 1 stop, no parity
  sta uart_lcr
- pla
  lda #&01       \ Enable 16 byte fifo buffer
  sta uart_fcr
  lda uart_mcr   \ load current modem control register
  and #&F7       \ set bit 3 to 0
  sta uart_mcr   \ write back to modem control and activate bank 0
+ if __DEBUG__ = 1
+  lda uart_lcra   \ enable baudrate divisor
+  ora #&80
+  sta uart_lcra
+  lda #&01        \ set divisor to 1. 115k2
+  sta uart_dlla
+  lda #&00
+  sta uart_dlma
+  sta uart_afra   \ set MFA to output
+  lda #&03        \ 8 bit, 1 stop, no parity
+  sta uart_lcra
+ endif
+ pla
  rts
- 
+
 \ Send a byte to the ESP8266 module
 \ On exit all registers are unchanged.
 .send_byte
@@ -61,6 +73,9 @@ bank_save = save_a
  beq sb1
  pla
  sta uart_thr
+ if __DEBUG__ = 1
+ sta uart_thra
+ endif
  rts
 
 \ Read a byte from the ESP8266 module
@@ -82,6 +97,9 @@ bank_save = save_a
 .read_byte_data
  sec                        \ set carry to indicate receive data
  lda uart_rhr               \ load data
+ if __DEBUG__ = 1
+ sta uart_thra
+ endif
  rts                        \ return to calling routine
 
 \ Disable ESP8266 module
@@ -111,18 +129,18 @@ bank_save = save_a
  ora #&02           \ set RTS high
  sta uart_mcr       \ write back to modem control register
  jsr oswait         \ wait for fly back
- jsr oswait    
+ jsr oswait
  lda uart_mcr       \ load modem control register
  and #&7D           \ set DTR low
  sta uart_mcr       \ write back to modem control register
  rts                \ end of subroutine
- 
+
 \ Read response from device
 \ This routine does not use subroutines to avoid the Electron ULA
 \ stopping the CPU in mode 0 - 3.
 
 \ To avoid unnecessary waiting this routine first waits for the initial respons with
-\ a long time-out and after the data stream has started it will wait with a short 
+\ a long time-out and after the data stream has started it will wait with a short
 \ time-out.
 .uart_read_response
  sei                        \ disable interrupts
@@ -136,7 +154,7 @@ bank_save = save_a
  lda uart_lsr               \ test data present
  and #&01
  bne uart_read_start        \ jump if data received
- 
+
 \ Decrement long timer
  dec timer                  \ decrement timer
  bne uart_wait_for_data
@@ -144,21 +162,24 @@ bank_save = save_a
  bne uart_wait_for_data     \ if not expired wait another cyclus
  dec timer+2
  bne uart_wait_for_data     \ if not expired wait another cyclus
- beq uart_read_end          
+ beq uart_read_end
 
 \ Data stream has started. The time-out is here counted by the Y register. The next byte should arrive
 \ after 80 microseconds. This loop will be long enough to cover this time about 40 times.
 .uart_read_start
  ldy #0                     \ load (very) short timer
  lda uart_rhr               \ read received data
+ if __DEBUG__ = 1
+ sta uart_thra
+ endif
  sta pageram,x              \ store in memory
  inx                        \ increment memory pointer
  bne uart_read_l1
  inc pagereg                \ increment page register
  bne uart_read_l1           \ jump if not end of ram reached
  jmp buffer_full            \ throw error
-.uart_read_l1       
- dey                        \ decrement short timer 
+.uart_read_l1
+ dey                        \ decrement short timer
  beq uart_read_end          \ jump if transfer has ended
  lda uart_lsr               \ load status byte
  and #&01                   \ test if data received
@@ -188,7 +209,7 @@ bank_save = save_a
  lda uart_lsr               \ test data present
  and #&01
  bne uart_gr_read_data      \ jump if data received
- 
+
 \ Decrement long timer
  dec timer                  \ decrement timer
  bne uart_gr_wait
@@ -196,10 +217,13 @@ bank_save = save_a
  bne uart_gr_wait           \ if not expired wait another cyclus
  dec timer+2
  bne uart_gr_wait           \ if not expired wait another cyclus
- beq uart_read_end          
+ beq uart_read_end
 
 .uart_gr_read_data
  lda uart_rhr               \ load received data
+ if __DEBUG__ = 1
+ sta uart_thra
+ endif
  cmp #'+'                   \ is it a plus (start of +IPD)?
  beq uart_gr_read_l1        \ yes, then jump
  sta pageram,x              \ store in memory
@@ -214,6 +238,9 @@ bank_save = save_a
 \ after 80 microseconds. This loop will be long enough to cover this time about 40 times.
 .uart_gr_read_start
  lda uart_rhr               \ read received data
+ if __DEBUG__ = 1
+ sta uart_thra
+ endif
 .uart_gr_read_l1
  ldy #0                     \ load (very) short timer
  sta pageram,x              \ store in memory
@@ -222,8 +249,8 @@ bank_save = save_a
  inc pagereg                \ increment page register
  bne uart_gr_read_l3        \ jump if not end of ram reached
  jmp buffer_full            \ throw error
-.uart_gr_read_l2       
- dey                        \ decrement short timer 
+.uart_gr_read_l2
+ dey                        \ decrement short timer
  beq uart_read_end          \ jump if transfer has ended
 .uart_gr_read_l3
  lda uart_lsr               \ load status byte
@@ -252,9 +279,6 @@ bank_save = save_a
 \ Set bank number
 \ Sets the bank number to the value of the lsb of A
 .set_bank_nr
-if __FPGATOM__
- sta bankreg
-else
  pha                \ save A register
  pha                \ save A register
  lda uart_mcr       \ load mcr
@@ -269,31 +293,20 @@ else
  ora uart_mcr       \ 'or' the A with the current value of the mcr
  sta uart_mcr       \ set the new value
  pla                \ restore A
-endif
  rts                \ end of routine
 
 \ Alternative bank number set routine, shorter and faster
 .set_bank_0         \ set it to 0
-if __FPGATOM__
- lda #0             \ load value
- sta bankreg
-else
  lda uart_mcr       \ load current value
  and #&F7           \ clear bit 3 (MFB)
  sta uart_mcr       \ write it back
-endif
  rts                \ end of routine
 
 \ Alternative bank number set routine, shorter and faster
 .set_bank_1         \ set it to 1
-if __FPGATOM__
- lda #1
- sta bankreg
-else
  lda uart_mcr       \ load current value
  ora #&08           \ clear bit 3 (MFB)
  sta uart_mcr       \ write it back
-endif
  rts                \ end of routine
 
 \ Even more faster, write A to MCR
@@ -307,4 +320,3 @@ endif
  lda uart_mcr       \ load status
  and #&01           \ test lowest bit (DTR)
  rts                \ return
-
