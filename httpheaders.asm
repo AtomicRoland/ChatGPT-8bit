@@ -2,7 +2,7 @@
 \ Common settings, definitions and constants
 
 \ (C)Roland Leurs 2023
-\ Version 1.00 August 2023
+\ Version 1.2 August 2025
 
 \ Put your personal API key in line 13 after 'Bearer'. You also might need to change the url of the proxy host
 \ and the name of the proxy script.
@@ -12,7 +12,8 @@
 .postcmd 	EQUS "POST /proxy.php?https://api.openai.com/v1/chat/completions HTTP/1.1",&0D,&0A
 .host		EQUS "HOST: proxy.acornelectron.nl",&0D,&0A
 .contenttype	EQUS "Content-Type: application/json",&0D,&0A
-.authorization	EQUS "Authorization: Bearer <your-own-bearer-code-here>",&0D,&0A
+.authorization	EQUS "Authorization: Bearer sk-proj-<your bearer code goes here>",&0D,&0A
+.project        EQUS "OpenAI-Project: proj_<your project code goes here>",&0D,&0A
 .contentlength	EQUS "Content-length: ", &00;
 .postdata_1	EQUB &0D,&0A,&0D,&0A
 		EQUS "{",&22,"model",&22,": ",&22,"gpt-4o-mini",&22,",",&22,"messages",&22,": [{",&22,"role",&22,": ",&22,"user",&22,", ",&22,"content",&22,": ",&22, &00

@@ -2,7 +2,7 @@
 \ Common settings, definitions and constants 
 
 \ (C)Roland Leurs 2023
-\ Version 1.00 August 2023
+\ Version 1.2 August 2025
 
 .tcp_connect	\ Set up the TCP connection to the web service
 \ Copy protocol (TCP) to command buffer
@@ -50,8 +50,6 @@ else
 		jmp wifidriver              \ execute wifi function and return
 endif
 
-
-
 .tcp_send	\ Send the data
 \ Copy POST command to cmd buffer
 		ldx #0				        \ reset read pointer (postcmd)
@@ -73,7 +71,6 @@ endif
 		lda #&0D			        \ load driver function number (13 = send data)
 
 if __ELECTRON__
-
 		sta save_a			        \ write OSWORD &65 function number to parameter block
 		stx save_x			        \ write OSWORD &65 x-value
 		sty save_y			        \ write OSWORD &65 y-value
@@ -97,14 +94,20 @@ endif
 \ Copy data to command buffer
 \ The data should end with a &00 byte, this byte is not copied.
 .tcp_send_postcmd
-        ldx #0                      \ reset index
+        ldy #0                      \ reset index
+        lda #<postcmd               \ set read pointer
+        sta readpointer
+        lda #>postcmd
+        sta readpointer+1
 .tcp_send_cp1
-		lda postcmd,x			    \ read data
+		lda (readpointer),y 	    \ read data
 		beq tcp_send_cp2		    \ jump if data = 0 (end of first part)
 		jsr tcp_write_buf		    \ write data to command buffer
-		inx				            \ increment read pointer
-		bne tcp_send_cp1		    \ jump if not all data are copied
-.tcp_send_cp2	inx                 \ increment read pointer to skip the &00 byte
+		inc	readpointer	            \ increment read pointer low byte
+		bne tcp_send_cp1		    \ jump if not page boundary crossed
+        inc readpointer+1           \ increment read pointer high byte
+        bne tcp_send_cp1            \ jump almost always
+.tcp_send_cp2
         rts				            \ return to calling routine
 
 .tcp_send_postdata_1

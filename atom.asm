@@ -2,7 +2,7 @@
 \ Settings, definitions and constants for the Acorn Atom
 
 \ (C)Roland Leurs 2023
-\ Version 1.00 August 2023
+\ Version 1.2 August 2025
 
 if __FPGATOM__=1
 uart    = &BFC0                 \ Base address for the 16C2552 UART B-port
@@ -10,16 +10,16 @@ pagereg = &BFF8
 bankreg = &BFF9                 \ PAM bank select register in FPGAtom
 pageram = &B100
 else
-uart    = &BD30                 \ Base address for the 16C2552 UART B-port
-pagereg = &BDFF
+uart    = &BB30                 \ Base address for the 16C2552 UART B-port
+pagereg = &BBFF
 pageram = &BC00
 endif
 
 
 godil	= &BD00            
-chatbuf = &2D00			\ start address of 256 byte input buffer, must by page aligned!
-cmdbuf = &2E00			\ start address of 512 byte command and http request buffer, must by page aligned!
-heap = cmdbuf                   \ reuse of memory, cmdbuf is used before http request, heap is used after the request
+chatbuf = &2B00			\ start address of 256 byte input buffer, must be page aligned!
+cmdbuf = &2C00			\ start address of 1024 byte command and http request buffer, must be page aligned!
+heap = cmdbuf           \ reuse of memory, cmdbuf is used before http request, heap is used after the request
 textbuf = &4000			\ start address of text buffer for ChatGPT response
 
 osrdch = &FFE3
@@ -29,13 +29,13 @@ osnewl = &FFED
 line = &F2              	\ address for command line pointer
 zp = &60                	\ workspace
 
-save_a = zp+2           	\ only used in driver, outside driver is may be used for "local" work
-save_x = zp+3           	\ only used in driver, outside driver is may be used for "local" work
-save_y = zp+4           	\ only used in driver, outside driver is may be used for "local" work
+save_a = zp+2           	\ only used in driver, outside driver this may be used for "local" work
+save_x = zp+3           	\ only used in driver, outside driver this may be used for "local" work
+save_y = zp+4           	\ only used in driver, outside driver this may be used for "local" work
 paramblok = save_x
 writepointer = zp+5		    \ used for TCP send command, pointer to write buffer (2 bytes)
 data_pointer = zp+5         \ used by CIPSEND routine in driver.asm (2 bytes, might conflict!)
-readpointer = zp+5		    \ used for text reader
+readpointer = zp+26	        \ used for text reader
 writelength = zp+7		    \ used for TCP send command, length counter (3 bytes, before http transfer)
 blocksize = writelength     \ used for parsing data (3 bytes, after http transfer)
 data_counter = zp+10		\ used for parameters transfer to prdec24 (3 bytes)

@@ -72,7 +72,7 @@ endif
 \ Display a welcome message
 .welcome_msg
 	jsr printtext
-	equs "WELCOME TO CHATGPT CLIENT V1.1",&0D
+	equs "WELCOME TO CHATGPT CLIENT V1.2",&0D
 	equs "==============================",&EA
 	rts
 

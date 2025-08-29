@@ -2,7 +2,7 @@
 \ Settings, definitions and constants for the Acorn System 5
 
 \ (C)Roland Leurs 2024
-\ Version 1.00 August 2024
+\ Version 1.2 August 2025
 
 SCREENWIDTH = 39
 SCREENHEIGTH = 23
@@ -11,8 +11,8 @@ uart    = &B30                 \ Base address for the 16C2552 UART B-port
 pagereg = &BFF
 pageram = &D00
 
-chatbuf = &3D00			\ start address of 256 byte input buffer, must by page aligned!
-cmdbuf = &3E00			\ start address of 512 byte command and http request buffer, must by page aligned!
+chatbuf = &2B00			\ start address of 256 byte input buffer, must be page aligned!
+cmdbuf = &2C00			\ start address of 1024 byte command and http request buffer, must be page aligned!
 heap = cmdbuf           \ reuse of memory, cmdbuf is used before http request, heap is used after the request
 textbuf = &4000			\ start address of text buffer for ChatGPT response
 
@@ -23,13 +23,13 @@ osnewl = &FFED
 line = &F2              	\ address for command line pointer
 zp = &60                	\ workspace
 
-save_a = zp+2           	\ only used in driver, outside driver is may be used for "local" work
-save_x = zp+3           	\ only used in driver, outside driver is may be used for "local" work
-save_y = zp+4           	\ only used in driver, outside driver is may be used for "local" work
+save_a = zp+2           	\ only used in driver, outside driver this may be used for "local" work
+save_x = zp+3           	\ only used in driver, outside driver this may be used for "local" work
+save_y = zp+4           	\ only used in driver, outside driver this may be used for "local" work
 paramblok = save_x
 writepointer = zp+5		    \ used for TCP send command, pointer to write buffer (2 bytes)
 data_pointer = zp+5         \ used by CIPSEND routine in driver.asm (2 bytes, might conflict!)
-readpointer = zp+5		    \ used for text reader
+readpointer = zp+26		    \ used for text reader
 writelength = zp+7		    \ used for TCP send command, length counter (3 bytes, before http transfer)
 blocksize = writelength     \ used for parsing data (3 bytes, after http transfer)
 data_counter = zp+10		\ used for parameters transfer to prdec24 (3 bytes)

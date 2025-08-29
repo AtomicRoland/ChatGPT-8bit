@@ -2,13 +2,13 @@
 \ Settings, definitions and constants for the Acorn Electron, BBC Micro and BBC Master
 
 \ (C)Roland Leurs 2023
-\ Version 1.00 August 2023
+\ Version 1.2 August 2025
 
 pagereg = &FCFF
 pageram = &FD00
 
-chatbuf = &1D00			\ start address of 256 byte input buffer, must by page aligned!
-cmdbuf = &1E00			\ start address of 512 byte command and http request buffer, must by page aligned!
+chatbuf = &1B00			\ start address of 256 byte input buffer, must be page aligned!
+cmdbuf = &1C00			\ start address of 1024 byte command and http request buffer, must be page aligned!
 heap = cmdbuf           \ reuse of memory, cmdbuf is used before http request, heap is used after the request
 textbuf = &3000			\ start address of text buffer for ChatGPT response
 
@@ -22,11 +22,11 @@ osnewl = &FFE7
 line = &F2              \ address for command line pointer
 zp = &40                \ workspace
 
-save_a = zp+2           \ only used in driver, outside driver is may be used for "local" work
-save_x = zp+3           \ only used in driver, outside driver is may be used for "local" work
-save_y = zp+4           \ only used in driver, outside driver is may be used for "local" work
+save_a = zp+2           \ only used in driver, outside driver this may be used for "local" work
+save_x = zp+3           \ only used in driver, outside driver this may be used for "local" work
+save_y = zp+4           \ only used in driver, outside driver this may be used for "local" work
 writepointer = zp+5		\ used for TCP send command, pointer to write buffer (2 bytes)
-readpointer = zp+5		\ used for text reader
+readpointer = zp+21		\ used for text reader
 writelength = zp+7		\ used for TCP send command, length counter (3 bytes, before http transfer)
 blocksize = writelength \ used for parsing data (3 bytes, after http transfer)
 data_counter = zp+10	\ used for paramters transfer to prdec24 (3 bytes)
