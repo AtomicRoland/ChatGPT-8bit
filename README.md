@@ -23,7 +23,8 @@ enjoy chatting with ChatGPT from your old Acorn machine :-)
 # Getting started
 * Step 1: get an API key (you may be charged by OpenAI)
 * Step 2: download or clone this source code
-* Step 3: add your API key to httpheaders.asm, optionally: change the URL of the proxy server
+* Step 3: add your API key and project ID to httpheaders.asm, optionally: change the URL of the proxy server
+  optional: you can also select a model, I have tested versions 4o-mini (preffered) and 5-mini
 * Step 4: run the ./build.sh script (beebasm required)
 * Step 5: transfer the assembled binary file to your computer
 
@@ -39,3 +40,12 @@ Happy Chatting!
 
 
 
+Notes to version 1.2 - August 2025 -
+====================================
+
+OpenAI switched to project based API keys. So you need to add a project key. Because of the
+much longer API keys (even up to one hundred characters) and an additional project identifier,
+the original code had a roll-over of the X-index register. So the routine to copy the headers
+into the send buffer had to be rewritten. Also the buffer space had to be increased (now 1024 
+bytes instead of 512). So a little bit more memory space is required. But the code still
+works without any specific memory expansions.
