@@ -184,7 +184,14 @@
 .sipd5
  rts                        \ else return with carry cleared, i.e. needle not found
 
+if __TARGET__ = "Gemini"
+.contentstring              equs '"', "text", '"', ": ", '"'
+cslen = 9
+else
 .contentstring              equs '"', "content", '"', ": ", '"'
+cslen = 12
+endif
+
 .reader_search_content
  ldy #11                    \ initialize pointer
 .scrlf1
@@ -192,7 +199,7 @@
  sta heap,y                 \ write to workspace
  dey                        \ decrement pointer
  bpl scrlf1                 \ jump if more characters to copy
- lda #12                    \ load needle length
+ lda #cslen                 \ load needle length
  bne wget_search            \ jumps always
 
 .wget_read_ipd

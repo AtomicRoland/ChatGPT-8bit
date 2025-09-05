@@ -72,8 +72,18 @@ endif
 \ Display a welcome message
 .welcome_msg
 	jsr printtext
-	equs "WELCOME TO CHATGPT CLIENT V1.2",&0D
+if __TARGET__ = "ChatGPT"
+	equs "WELCOME TO CHATGPT CLIENT V1.3",&0D
 	equs "==============================",&EA
+endif
+if __TARGET__ = "Copilot"
+	equs "WELCOME TO COPILOT CLIENT V1.3",&0D
+	equs "==============================",&EA
+endif
+if __TARGET__ = "GEMINI"
+	equs "WELCOME TO GEMINI CLIENT V1.3",&0D
+	equs "=============================",&EA
+endif
 	rts
 
 \ Show the input prompt

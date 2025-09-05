@@ -1,8 +1,21 @@
-\ ChatGPT client for Acorn 8bit micros
+\ AI client for Acorn 8bit micros
 \ (C)Roland Leurs 2023 - 2024
 \ Version 1.10 August 2024
 
 __DEBUG__ = 0               \ If enabled then all serial input/output is echoed to serial port A
+
+if __SERVICE__ = 1
+__TARGET__ = "ChatGPT"
+endif
+
+if __SERVICE__ = 2
+__TARGET__ = "Copilot"
+endif
+
+if __SERVICE__ = 3
+__TARGET__ = "Gemini"
+endif
+
 if __ELECTRON__ = 1
 include "electron.asm"
 endif
@@ -17,7 +30,16 @@ endif
 
 org start_address
 
-.atmheader	equs "CHATGPT",0,0,0,0,0,0,0,0,0
+.atmheader
+if __TARGET__ = "ChatGPT"
+            equs "CHATGPT",0,0,0,0,0,0,0,0,0
+endif
+if __TARGET__ = "Copilot"
+            equs "COPILOT",0,0,0,0,0,0,0,0,0
+endif
+if __TARGET__ = "Gemini"
+            equs "GEMINI",0,0,0,0,0,0,0,0,0,0
+endif
             equw chatstart
             equw chatstart
             equw chatend-chatstart
@@ -60,5 +82,5 @@ org start_address
 
 .chatend             
 
-SAVE "chatgpt.atm", atmheader, chatend
-SAVE "chatgpt.bin", chatstart, chatend
+SAVE "aiclient.atm", atmheader, chatend
+SAVE "aiclient.bin", chatstart, chatend
